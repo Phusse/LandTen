@@ -1,0 +1,79 @@
+# docker-compose.override.yml
+# Local development port mappings.
+# This file is automatically merged with docker-compose.yml by Docker Compose.
+# Do NOT commit real secrets — copy .env.example → .env and fill in values.
+
+services:
+  # ── Databases ────────────────────────────────────────────────────
+  postgres-userservice:
+    ports:
+      - "5432:5432"
+
+  postgres-propertyservice:
+    ports:
+      - "5433:5432"
+
+  postgres-applicationservice:
+    ports:
+      - "5434:5432"
+
+  postgres-messagingservice:
+    ports:
+      - "5435:5432"
+
+  postgres-paymentservice:
+    ports:
+      - "5436:5432"
+
+  # ── Cache ─────────────────────────────────────────────────────────
+  redis:
+    ports:
+      - "6379:6379"
+
+  # ── Message Broker ────────────────────────────────────────────────
+  rabbitmq:
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI → http://localhost:15672
+
+  # ── Services ──────────────────────────────────────────────────────
+  userservice-api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "5001:8080"
+
+  propertyservice-api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "5002:8080"
+
+  applicationservice-api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "5003:8080"
+
+  messagingservice-api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "5004:8080"
+
+  notificationservice-api:
+    environment:
+      DOTNET_ENVIRONMENT: Development
+
+  paymentservice-api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "5006:8080"
+
+  # ── Gateway ───────────────────────────────────────────────────────
+  apigateway:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "5000:8080"   # All external traffic enters here

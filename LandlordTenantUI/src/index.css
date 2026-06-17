@@ -1,0 +1,66 @@
+/* =============================================================================
+   LandlordTenantUI — Global Styles & Tailwind v4 Theme
+   =============================================================================
+
+   Harbour Design Token Mapping:
+   ─────────────────────────────
+   Tailwind radius aliases → harbour tokens:
+     rounded-sm  (4px built-in) → closest to harbour-sm (6px) — use rounded
+     rounded      (4px)          → use rounded-md for harbour-sm = 6px approx
+     rounded-md  (6px)          → harbour-sm  = 6px  ✓ (exact in v4 default scale)
+     rounded-lg  (8px)          → harbour-md  = 10px → use rounded-xl (12px) as closest
+     rounded-xl  (12px)         → harbour-lg  = 16px → use rounded-2xl (16px) ✓
+
+   Summary of recommended class usage:
+     rounded-md  → harbour-sm  (6px)
+     rounded-xl  → harbour-md  (10–12px range)
+     rounded-2xl → harbour-lg  (16px)
+============================================================================= */
+
+@import "tailwindcss";
+@import "@fontsource/zilla-slab/400.css";
+@import "@fontsource/zilla-slab/500.css";
+@import "@fontsource/zilla-slab/600.css";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+
+@theme {
+  /* ── Harbour Colour Palette ── */
+  --color-harbour-bg:              #F2EDE4;
+  --color-harbour-surface:         #FFFFFF;
+  --color-harbour-primary:         #1F3B40;
+  --color-harbour-primary-soft:    #2E5158;
+  --color-harbour-accent:          #E0922F;
+  --color-harbour-accent-hover:    #CC8224;
+  --color-harbour-text:            #232323;
+  --color-harbour-text-secondary:  #6B6B63;
+  --color-harbour-text-tertiary:   #9B958A;
+  --color-harbour-border:          #DDD5C7;
+  --color-harbour-success:         #4A7856;
+  --color-harbour-success-bg:      #E3EBE0;
+  --color-harbour-warning:         #8F5A1F; /* darkened from #B8762A: 3.22:1 → 4.99:1 on warning-bg (WCAG AA) */
+  --color-harbour-warning-bg:      #FBEDD9;
+  --color-harbour-info-bg:         #E4ECEC;
+
+  /* ── Harbour Font Families ── */
+  --font-display: "Zilla Slab", serif;
+  --font-body:    "IBM Plex Sans", sans-serif;
+}
+
+/* ── Base resets ── */
+@layer base {
+  html {
+    font-family: var(--font-body);
+    color: var(--color-harbour-text);
+    background-color: var(--color-harbour-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+}

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--
+    FrameworkReference grants access to IApplicationBuilder, HttpContext, ProblemDetails, etc.
+    Required by GlobalExceptionHandlingMiddleware. All projects referencing this lib also
+    target net8.0, so this is safe and avoids duplicating ASP.NET Core NuGet packages.
+  -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.29.2" />
+  </ItemGroup>
+
+</Project>

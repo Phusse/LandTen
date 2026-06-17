@@ -1,0 +1,52 @@
+# Build outputs
+bin/
+obj/
+
+# Visual Studio / Rider IDE
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docobj
+
+# User-specific settings
+*.rsuser
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Sensitive configuration — NEVER commit
+.env
+appsettings.Development.json
+appsettings.Local.json
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+
+# Test results
+TestResults/
+coverage/
+*.coveragexml
+
+# Docker
+docker-compose.override.local.yml
+
+# EF Core migrations can be committed, but exclude the Designer files if preferred
+# *.Designer.cs
+
+# Logs
+*.log
+logs/
+
+# Environment Configs
+appsettings.Development.json
+appsettings.Local.json
+.env

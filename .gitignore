@@ -1,0 +1,15 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# .NET User Secrets / Local Configs
+appsettings.Development.json
+appsettings.Local.json
+
+# IDEs and Tools
+.vscode/
+.idea/
+.vs/
+.DS_Store

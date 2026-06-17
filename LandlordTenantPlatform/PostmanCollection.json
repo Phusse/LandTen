@@ -1,0 +1,143 @@
+{
+  "info": {
+    "name": "LandlordTenantPlatform",
+    "description": "Endpoints for UserService and PropertyService.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. UserService",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"landlord@example.com\",\n  \"phone\": \"+2348000000000\",\n  \"password\": \"P@ssw0rd123\",\n  \"role\": \"Landlord\"\n}"
+            },
+            "url": {
+              "raw": "{{UserServiceUrl}}/auth/register",
+              "host": ["{{UserServiceUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"AccessToken\", jsonData.accessToken);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"landlord@example.com\",\n  \"password\": \"P@ssw0rd123\"\n}"
+            },
+            "url": {
+              "raw": "{{UserServiceUrl}}/auth/login",
+              "host": ["{{UserServiceUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Upload KYC",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{AccessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"GovernmentId\",\n  \"fileUrl\": \"https://example.com/id.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{UserServiceUrl}}/kyc/upload",
+              "host": ["{{UserServiceUrl}}"],
+              "path": ["kyc", "upload"]
+            }
+          }
+        },
+        {
+          "name": "Admin: Approve KYC",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{AdminAccessToken}}" }
+            ],
+            "url": {
+              "raw": "{{UserServiceUrl}}/admin/kyc/{{KycDocumentId}}/approve",
+              "host": ["{{UserServiceUrl}}"],
+              "path": ["admin", "kyc", "{{KycDocumentId}}", "approve"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. PropertyService",
+      "item": [
+        {
+          "name": "Create Property",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{AccessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"2 Bedroom Flat in Lekki\",\n  \"description\": \"Spacious and modern.\",\n  \"address\": \"123 Admiralty Way\",\n  \"city\": \"Lekki\",\n  \"state\": \"Lagos\",\n  \"rentPrice\": 3000000,\n  \"rooms\": 2\n}"
+            },
+            "url": {
+              "raw": "{{PropertyServiceUrl}}/properties",
+              "host": ["{{PropertyServiceUrl}}"],
+              "path": ["properties"]
+            }
+          }
+        },
+        {
+          "name": "Search Properties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{PropertyServiceUrl}}/properties?city=Lekki&minRent=1000000",
+              "host": ["{{PropertyServiceUrl}}"],
+              "path": ["properties"],
+              "query": [
+                { "key": "city", "value": "Lekki" },
+                { "key": "minRent", "value": "1000000" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "UserServiceUrl", "value": "http://localhost:5001" },
+    { "key": "PropertyServiceUrl", "value": "http://localhost:5002" },
+    { "key": "AccessToken", "value": "" },
+    { "key": "AdminAccessToken", "value": "" },
+    { "key": "KycDocumentId", "value": "" }
+  ]
+}
