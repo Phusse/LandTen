@@ -13,6 +13,7 @@ fi
 export ConnectionStrings__UserServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Trust Server Certificate=true;Pooling=false;"
 export ConnectionStrings__PropertyServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Trust Server Certificate=true;Pooling=false;"
 export ConnectionStrings__ApplicationServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Trust Server Certificate=true;Pooling=false;"
+export ConnectionStrings__MessagingServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Trust Server Certificate=true;Pooling=false;"
 export ConnectionStrings__DefaultConnection="${SUPABASE_DB_BASE}Search Path=payment_schema;"
 
 export Cloudinary__CloudName="${CLOUDINARY_CLOUD_NAME}"

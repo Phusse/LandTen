@@ -9,13 +9,7 @@ export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-harbour-bg px-4 text-center">
       <div className="mb-8 flex justify-center">
-        <Logo 
-          markSize="h-20 w-20" 
-          showWordmark={false} 
-          fallbackBgClass="bg-harbour-surface" 
-          fallbackIconClass="text-harbour-accent" 
-          fallbackIconSize={28} 
-        />
+        <Logo markSize="h-20 w-20" showWordmark={false} />
       </div>
 
       {/* 404 copy */}

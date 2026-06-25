@@ -106,12 +106,18 @@ public class PropertyRepository : IPropertyRepository
         return await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<PropertyDocument>> GetPendingPropertyDocumentsAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<PropertyDocument>> GetPropertyDocumentsAsync(PropertyDocumentStatus? status = null, CancellationToken cancellationToken = default)
     {
-        return await _context.PropertyDocuments
+        var query = _context.PropertyDocuments
             .Include(d => d.Property)
-            .Where(d => d.Status == Domain.Enums.PropertyDocumentStatus.Pending)
-            .ToListAsync(cancellationToken);
+            .AsQueryable();
+            
+        if (status.HasValue)
+        {
+            query = query.Where(d => d.Status == status.Value);
+        }
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public async Task<PropertyDocument?> GetPropertyDocumentByIdAsync(Guid id, CancellationToken cancellationToken = default)

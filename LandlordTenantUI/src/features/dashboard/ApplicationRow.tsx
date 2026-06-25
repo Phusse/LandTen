@@ -5,6 +5,7 @@ export interface MockApplication {
   name: string
   initials: string
   meta: string
+  status: 'Pending' | 'Accepted' | 'Rejected' | 'Withdrawn'
 }
 
 interface ApplicationRowProps {
@@ -33,22 +34,40 @@ export function ApplicationRow({
         </p>
       </div>
 
-      {/* Actions */}
-      <div className="flex shrink-0 gap-2">
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => onDecline?.(application.id)}
-        >
-          Decline
-        </Button>
-        <Button
-          variant="outline-accent"
-          size="sm"
-          onClick={() => onAccept?.(application.id)}
-        >
-          Accept
-        </Button>
+      {/* Actions / Status */}
+      <div className="flex shrink-0 items-center gap-2">
+        {application.status === 'Pending' ? (
+          <>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => onDecline?.(application.id)}
+            >
+              Decline
+            </Button>
+            <Button
+              variant="outline-accent"
+              size="sm"
+              onClick={() => onAccept?.(application.id)}
+            >
+              Accept
+            </Button>
+          </>
+        ) : (
+          <div className="flex items-center">
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                application.status === 'Accepted'
+                  ? 'bg-green-100 text-green-700'
+                  : application.status === 'Rejected'
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              {application.status}
+            </span>
+          </div>
+        )}
       </div>
     </Card>
   )

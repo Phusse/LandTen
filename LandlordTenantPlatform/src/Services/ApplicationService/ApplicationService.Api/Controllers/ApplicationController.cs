@@ -27,7 +27,7 @@ public class ApplicationController : ControllerBase
     private string GetUserRole() => User.FindFirstValue("role") ?? User.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
 
     [HttpPost]
-    [Authorize(Policy = AuthPolicies.TenantOnly)]
+    [Authorize(Policy = AuthPolicies.VerifiedTenantOnly)]
     public async Task<IActionResult> ApplyToProperty([FromBody] ApplyRequest request, CancellationToken cancellationToken)
     {
         var command = new ApplyToPropertyCommand(request.PropertyId, GetUserId());

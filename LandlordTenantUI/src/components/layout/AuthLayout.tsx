@@ -29,14 +29,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <div className="w-full max-w-md">
           {/* Mobile Branding (Visible only on < lg) */}
           <div className="mb-8 flex lg:hidden flex-col items-center gap-3">
-            <Logo 
-              markSize="h-12 w-12"
-              gap="flex-col gap-3"
-              fallbackBgClass="bg-harbour-primary"
-              fallbackIconClass="text-harbour-accent"
-              fallbackIconSize={24}
-              wordmarkClassName="h-8 object-contain"
-            />
+            <Logo markSize="h-12 w-12" />
           </div>
 
           {/* Form Content */}

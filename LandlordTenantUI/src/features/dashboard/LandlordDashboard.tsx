@@ -165,6 +165,7 @@ export function LandlordDashboard() {
                   initials: app.tenantInitials,
                   name: app.tenantName,
                   meta: app.meta,
+                  status: app.status,
                 }}
                 onAccept={(id) => changeStatus({ id, status: 'Accepted' })}
                 onDecline={(id) => changeStatus({ id, status: 'Rejected' })}

@@ -83,13 +83,19 @@ public class UserRepository : IUserRepository
         return (users, totalCount);
     }
 
-    public async Task<IEnumerable<KycDocument>> GetPendingKycDocumentsAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<KycDocument>> GetKycDocumentsAsync(KycDocumentStatus? status = null, CancellationToken cancellationToken = default)
     {
-        return await _context.KycDocuments
+        var query = _context.KycDocuments
             .Include(k => k.User)
                 .ThenInclude(u => u.UserProfile)
-            .Where(k => k.Status == KycDocumentStatus.Pending)
-            .ToListAsync(cancellationToken);
+            .AsQueryable();
+
+        if (status.HasValue)
+        {
+            query = query.Where(k => k.Status == status.Value);
+        }
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public async Task<KycDocument?> GetKycDocumentByIdAsync(Guid id, CancellationToken cancellationToken = default)

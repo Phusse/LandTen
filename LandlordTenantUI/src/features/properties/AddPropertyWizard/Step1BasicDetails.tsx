@@ -4,6 +4,7 @@ import {
   type AddPropertyFormValues,
   PROPERTY_TYPES,
   STATES,
+  CITIES,
 } from './types'
 
 interface Step1Props {
@@ -45,9 +46,10 @@ export function Step1BasicDetails({ form }: Step1Props) {
 
       {/* City / State — 2 columns on sm+ */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
+        <Select
           label="City"
-          placeholder="e.g. Lekki"
+          options={toOptions(CITIES)}
+          placeholder="Select a city"
           error={errors.city?.message}
           {...register('city', { required: 'City is required' })}
         />

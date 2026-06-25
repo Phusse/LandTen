@@ -108,7 +108,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id:guid}/public-profile")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> GetPublicLandlordProfile(Guid id)
     {
         var query = new GetPublicLandlordProfileQuery(id);

@@ -17,7 +17,7 @@ export interface AuthUser {
   firstName: string
   lastName: string
   phone: string
-  role: 'Tenant' | 'Landlord' | 'Admin'
+  role: 'Tenant' | 'Landlord' | 'Admin' | 'SuperAdmin'
   verificationStatus: 'Unverified' | 'Pending' | 'Verified' | 'Rejected'
   createdAt: string
 }

@@ -29,7 +29,7 @@ public class PropertyController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Policy = AuthPolicies.LandlordOnly)] // TODO: Revert to VerifiedLandlordOnly once KYC is implemented
+    [Authorize(Policy = AuthPolicies.VerifiedLandlordOnly)]
     public async Task<IActionResult> Create([FromBody] CreatePropertyRequest request)
     {
         var landlordIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);

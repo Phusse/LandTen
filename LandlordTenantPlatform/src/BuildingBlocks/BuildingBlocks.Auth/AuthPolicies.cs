@@ -9,5 +9,8 @@ public static class AuthPolicies
     public const string TenantOnly           = "TenantOnly";
     public const string LandlordOnly         = "LandlordOnly";
     public const string AdminOnly            = "AdminOnly";
+    public const string SuperAdminOnly       = "SuperAdminOnly";
     public const string VerifiedLandlordOnly = "VerifiedLandlordOnly";
+    public const string VerifiedTenantOnly   = "VerifiedTenantOnly";
+    public const string VerifiedUserOnly     = "VerifiedUserOnly";
 }

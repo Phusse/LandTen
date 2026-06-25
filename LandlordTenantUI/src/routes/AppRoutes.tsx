@@ -14,6 +14,14 @@ const Messages     = lazy(() => import('@/features/messages/Messages'))
 const Verification = lazy(() => import('@/features/auth/Verification'))
 const Settings     = lazy(() => import('@/features/settings/Settings'))
 const Search       = lazy(() => import('@/features/search/Search'))
+
+// Admin Features
+const AnalyticsDashboard = lazy(() => import('@/features/admin/AnalyticsDashboard'))
+const AdminManagement    = lazy(() => import('@/features/admin/AdminManagement'))
+const AdminVerifications = lazy(() => import('@/features/admin/AdminVerifications'))
+const AdminProperties    = lazy(() => import('@/features/admin/AdminProperties'))
+const AdminUsers         = lazy(() => import('@/features/admin/AdminUsers'))
+const AdminSettings      = lazy(() => import('@/features/admin/AdminSettings'))
 const Login        = lazy(() => import('@/features/auth/Login'))
 const Register     = lazy(() => import('@/features/auth/Register'))
 const Landing      = lazy(() => import('@/features/landing/Landing'))
@@ -62,6 +70,20 @@ export default function AppRoutes() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/verification" element={<Verification />} />
           <Route path="/settings" element={<Settings />} />
+
+          {/* ── Admin Routes: Accessible by both Admin + SuperAdmin ────────── */}
+          <Route element={<RoleRoute allowedRoles={['Admin', 'SuperAdmin']}><Outlet /></RoleRoute>}>
+            <Route path="/admin/dashboard" element={<AnalyticsDashboard />} />
+            <Route path="/admin/verifications" element={<AdminVerifications />} />
+            <Route path="/admin/properties" element={<AdminProperties />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+          </Route>
+
+          {/* ── SuperAdmin Only Routes ────────────────────────────────────── */}
+          <Route element={<RoleRoute allowedRoles={['SuperAdmin']}><Outlet /></RoleRoute>}>
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/staff" element={<AdminManagement />} />
+          </Route>
         </Route>
 
         {/* ── 404 catch-all ──────────────────────────────────────────────── */}

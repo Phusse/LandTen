@@ -101,20 +101,33 @@ public static class AuthExtensions
     {
         options.AddPolicy(AuthPolicies.TenantOnly,
             policy => policy.RequireAssertion(context => 
-                context.User.HasClaim(c => (c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role") && (c.Value == "tenant" || c.Value == "admin"))));
+                context.User.HasClaim(c => (c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role") && (c.Value == "tenant" || c.Value == "admin" || c.Value == "superadmin"))));
 
         options.AddPolicy(AuthPolicies.LandlordOnly,
             policy => policy.RequireAssertion(context => 
-                context.User.HasClaim(c => (c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role") && (c.Value == "landlord" || c.Value == "admin"))));
+                context.User.HasClaim(c => (c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role") && (c.Value == "landlord" || c.Value == "admin" || c.Value == "superadmin"))));
 
         options.AddPolicy(AuthPolicies.AdminOnly,
             policy => policy.RequireAssertion(context => 
-                context.User.HasClaim(c => (c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role") && c.Value == "admin")));
+                context.User.HasClaim(c => (c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role") && (c.Value == "admin" || c.Value == "superadmin"))));
+
+        options.AddPolicy(AuthPolicies.SuperAdminOnly,
+            policy => policy.RequireAssertion(context => 
+                context.User.HasClaim(c => (c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role") && c.Value == "superadmin")));
 
         options.AddPolicy(AuthPolicies.VerifiedLandlordOnly,
             policy => policy
                 .RequireAuthenticatedUser()
                 .AddRequirements(new VerifiedLandlordRequirement()));
+
+        options.AddPolicy(AuthPolicies.VerifiedTenantOnly,
+            policy => policy.RequireAssertion(context => 
+                context.User.HasClaim(c => (c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role") && c.Value == "tenant") &&
+                context.User.HasClaim(c => c.Type == "verification_status" && c.Value == "verified")));
+
+        options.AddPolicy(AuthPolicies.VerifiedUserOnly,
+            policy => policy.RequireAssertion(context => 
+                context.User.HasClaim(c => c.Type == "verification_status" && c.Value == "verified")));
 
         return options;
     }

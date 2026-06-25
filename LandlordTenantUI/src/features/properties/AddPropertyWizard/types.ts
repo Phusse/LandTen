@@ -28,6 +28,23 @@ export const PROPERTY_TYPES = [
 
 export const STATES = ['Lagos', 'Abuja (FCT)', 'Ogun', 'Rivers', 'Oyo']
 
+export const CITIES = [
+  'Lekki',
+  'Yaba',
+  'Surulere',
+  'Ikeja',
+  'Festac',
+  'Ajegunle',
+  'Badagry',
+  'Ago/Okota',
+  'Victoria Island',
+  'Ikoyi',
+  'Ikorodu',
+  'Ketu',
+  'Isolo',
+  'Jakande'
+]
+
 export const BEDROOM_OPTIONS = ['1', '2', '3', '4+']
 export const BATHROOM_OPTIONS = ['1', '2', '3', '4+']
 

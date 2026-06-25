@@ -25,6 +25,7 @@ export interface Property {
   status: string
   badges: PropertyBadge[]
   image?: string
+  createdAt: string
 }
 
 export interface PaginatedResponse<T> {
@@ -78,6 +79,7 @@ export async function getProperties(
       bedrooms: p.rooms || 1,
       bathrooms: p.bathrooms || 1,
       propertyType: p.propertyType || 'Apartment',
+      createdAt: p.createdAt || p.CreatedAt || new Date().toISOString(),
       image: p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls[0] : undefined,
       badges: [
         isVerified
@@ -110,6 +112,7 @@ export async function getMyProperties(
       bedrooms: p.rooms || 1,
       bathrooms: p.bathrooms || 1,
       propertyType: p.propertyType || 'Apartment',
+      createdAt: p.createdAt || p.CreatedAt || new Date().toISOString(),
       image: p.imageUrls && p.imageUrls.length > 0 ? p.imageUrls[0] : undefined,
       badges: [
         isVerified
@@ -154,6 +157,7 @@ export async function getPropertyById(id: string): Promise<Property> {
     bedrooms: data.rooms || 1,
     bathrooms: data.bathrooms || 1,
     propertyType: data.propertyType || 'Apartment',
+    createdAt: data.createdAt || data.CreatedAt || new Date().toISOString(),
     image: data.imageUrls && data.imageUrls.length > 0 ? data.imageUrls[0] : undefined,
     badges: [
       isVerified

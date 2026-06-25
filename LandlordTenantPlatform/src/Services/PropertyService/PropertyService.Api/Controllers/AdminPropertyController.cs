@@ -3,9 +3,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using BuildingBlocks.Auth;
+using BuildingBlocks.Common.Interfaces;
 using PropertyService.Application.Commands.ApprovePropertyVerification;
 using PropertyService.Application.Commands.RejectPropertyVerification;
-using PropertyService.Application.Queries.GetPendingPropertyVerifications;
+using PropertyService.Application.Queries.GetAllPropertyVerifications;
 
 namespace PropertyService.Api.Controllers;
 
@@ -15,16 +16,27 @@ namespace PropertyService.Api.Controllers;
 public class AdminPropertyController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IMediaStorageService _mediaStorage;
 
-    public AdminPropertyController(IMediator mediator)
+    public AdminPropertyController(IMediator mediator, IMediaStorageService mediaStorage)
     {
         _mediator = mediator;
+        _mediaStorage = mediaStorage;
     }
 
-    [HttpGet("pending-verification")]
-    public async Task<IActionResult> GetPendingVerifications()
+    /// <summary>Returns a signed Cloudinary URL for documents that were stored as private.</summary>
+    [HttpGet("signed-url")]
+    public IActionResult GetSignedUrl([FromQuery] string url)
     {
-        var query = new GetPendingPropertyVerificationsQuery();
+        if (string.IsNullOrWhiteSpace(url)) return BadRequest("url is required");
+        var signed = _mediaStorage.GetSignedUrl(url);
+        return Ok(new { signedUrl = signed });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] string? status)
+    {
+        var query = new GetAllPropertyVerificationsQuery(status);
         var result = await _mediator.Send(query);
 
         if (result.IsSuccess)

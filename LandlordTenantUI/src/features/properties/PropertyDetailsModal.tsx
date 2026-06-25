@@ -1,9 +1,12 @@
 import { useState } from 'react'
-import { X, MapPin, Bed, Bath, Home as HomeIcon, CheckCircle2 } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { X, MapPin, Bed, Bath, Home as HomeIcon, CheckCircle2, MessageCircle } from 'lucide-react'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { Button, Badge } from '@/components/ui'
+import { useNavigate } from 'react-router-dom'
 import type { Property } from './api'
-import { applyToProperty } from '@/features/applications/api'
+import { applyToProperty, getApplications } from '@/features/applications/api'
+import { startOrGetConversation } from '@/features/messages/api'
+import { useAuth } from '@/features/auth/AuthContext'
 import { queryKeys } from '@/lib/queryKeys'
 import { LandlordProfile } from './LandlordProfile'
 
@@ -17,6 +20,38 @@ export function PropertyDetailsModal({ property, isOpen, onClose }: PropertyDeta
   const [showSuccess, setShowSuccess] = useState(false)
   const [showUnverifiedError, setShowUnverifiedError] = useState(false)
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  // Fetch applications to check if tenant already applied
+  const { data: applications } = useQuery({
+    queryKey: queryKeys.applications.list(),
+    queryFn: getApplications,
+    enabled: user?.role === 'Tenant',
+  })
+
+  const existingApp = applications?.find((a) => a.propertyId === property?.id)
+
+  const [messagingAppId, setMessagingAppId] = useState<string | null>(null)
+  
+  const { mutate: startConversation } = useMutation({
+    mutationFn: (args: { landlordId: string; propertyId: string }) =>
+      startOrGetConversation(args.landlordId, args.propertyId),
+    onSuccess: (data) => {
+      setMessagingAppId(null)
+      navigate(`/messages?conversationId=${data.conversationId}`)
+      onClose()
+    },
+    onError: () => {
+      setMessagingAppId(null)
+    },
+  })
+
+  function handleMessageLandlord() {
+    if (!property?.landlordId) return
+    setMessagingAppId(property.id)
+    startConversation({ landlordId: property.landlordId, propertyId: property.id })
+  }
 
   const { mutate: apply, isPending } = useMutation({
     mutationFn: () => applyToProperty(property!.id),
@@ -171,11 +206,41 @@ export function PropertyDetailsModal({ property, isOpen, onClose }: PropertyDeta
         {!showSuccess && !showUnverifiedError && (
           <div className="border-t border-harbour-border bg-harbour-surface p-4 sm:px-8 sm:py-5 flex items-center justify-end gap-3 mt-auto">
             <Button variant="secondary" onClick={handleClose}>
-              Cancel
+              {existingApp ? 'Close' : 'Cancel'}
             </Button>
-            <Button variant="primary" onClick={handleApply} isLoading={isPending} disabled={isPending}>
-              Apply Now
-            </Button>
+            
+            {!existingApp ? (
+              <Button variant="primary" onClick={handleApply} isLoading={isPending} disabled={isPending}>
+                Apply Now
+              </Button>
+            ) : (
+              <div className="flex items-center gap-3">
+                {existingApp.status === 'Pending' && (
+                  <Badge label="Application pending" variant="warning" />
+                )}
+                {existingApp.status === 'Accepted' && (
+                  <Badge label="Application accepted" variant="success" />
+                )}
+                {(existingApp.status === 'Rejected' || existingApp.status === 'Withdrawn') && (
+                  <div className="flex flex-col items-end mr-1">
+                    <Badge label="Application rejected" variant="neutral" />
+                    <span className="text-[10px] text-harbour-text-tertiary mt-1">You can apply to other properties</span>
+                  </div>
+                )}
+
+                {/* Message landlord button for Pending/Accepted */}
+                {(existingApp.status === 'Pending' || existingApp.status === 'Accepted') && property.landlordId && (
+                  <Button
+                    variant="secondary"
+                    onClick={handleMessageLandlord}
+                    isLoading={messagingAppId === property.id}
+                    icon={<MessageCircle size={14} />}
+                  >
+                    Message landlord
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

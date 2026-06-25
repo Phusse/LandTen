@@ -68,4 +68,20 @@ public class User : BaseEntity
 
         VerificationStatus = newStatus;
     }
+
+    /// <summary>
+    /// Assigns a new role to the user. Usually invoked by SuperAdmins.
+    /// </summary>
+    public void AssignRole(UserRole newRole)
+    {
+        Role = newRole;
+    }
+
+    /// <summary>
+    /// Marks the user as deleted. (Soft Delete)
+    /// </summary>
+    public void SoftDelete()
+    {
+        Status = UserStatus.Deleted;
+    }
 }

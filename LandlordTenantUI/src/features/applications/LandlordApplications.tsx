@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { Calendar, RefreshCw } from 'lucide-react'
+import { Calendar, RefreshCw, MessageCircle } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Avatar, Badge, Button, Card, ApplicationRowSkeleton } from '@/components/ui'
 import { getApplications, updateApplicationStatus } from './api'
 import { queryKeys } from '@/lib/queryKeys'
+import { startOrGetConversation } from '@/features/messages/api'
 
 // Match the AppStatus type from the API response
 type AppStatus = 'Pending' | 'Accepted' | 'Rejected' | 'Expired' | 'Withdrawn'
@@ -23,6 +25,7 @@ const statusVariant: Record<AppStatus, 'neutral' | 'success' | 'warning'> = {
 export function LandlordApplications() {
   const [activeTab, setActiveTab] = useState<FilterTab>('All')
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const {
     data: applications,
@@ -41,6 +44,26 @@ export function LandlordApplications() {
       queryClient.invalidateQueries({ queryKey: queryKeys.applications.all })
     },
   })
+
+  // Track which application's "Message" button is loading
+  const [messagingAppId, setMessagingAppId] = useState<string | null>(null)
+
+  const { mutate: startConversation } = useMutation({
+    mutationFn: (args: { tenantId: string; propertyId: string }) =>
+      startOrGetConversation(args.tenantId, args.propertyId),
+    onSuccess: (data) => {
+      setMessagingAppId(null)
+      navigate(`/messages?conversationId=${data.conversationId}`)
+    },
+    onError: () => {
+      setMessagingAppId(null)
+    },
+  })
+
+  function handleMessageTenant(app: { id: string; tenantId: string; propertyId: string }) {
+    setMessagingAppId(app.id)
+    startConversation({ tenantId: app.tenantId, propertyId: app.propertyId })
+  }
 
   const allApplications = applications ?? []
   
@@ -126,13 +149,24 @@ export function LandlordApplications() {
                   </div>
                 </div>
 
-                {/* Actions — only for pending */}
-                {app.status === 'Pending' && (
-                  <div className="flex shrink-0 gap-2">
-                    <Button variant="secondary" size="sm" onClick={() => changeStatus({ id: app.id, status: 'Rejected' })}>Decline</Button>
-                    <Button variant="outline-accent" size="sm" onClick={() => changeStatus({ id: app.id, status: 'Accepted' })}>Accept</Button>
-                  </div>
-                )}
+                {/* Actions — Accept/Decline + Message */}
+                <div className="flex shrink-0 gap-2">
+                  {app.status === 'Pending' && (
+                    <>
+                      <Button variant="secondary" size="sm" onClick={() => changeStatus({ id: app.id, status: 'Rejected' })}>Decline</Button>
+                      <Button variant="outline-accent" size="sm" onClick={() => changeStatus({ id: app.id, status: 'Accepted' })}>Accept</Button>
+                    </>
+                  )}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={<MessageCircle size={14} />}
+                    isLoading={messagingAppId === app.id}
+                    onClick={() => handleMessageTenant(app)}
+                  >
+                    Message
+                  </Button>
+                </div>
               </div>
 
               {/* Inspection date footer — if present */}

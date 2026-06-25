@@ -62,7 +62,7 @@ public sealed class GlobalExceptionHandlingMiddleware
         {
             Status  = statusCode,
             Title   = title,
-            Detail  = exception.ToString(),
+            Detail  = exception.Message,
             Instance = context.Request.Path
         };
 

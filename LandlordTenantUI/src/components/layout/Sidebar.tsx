@@ -2,38 +2,23 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
 import {
   Home,
-  Building2,
+  Building,
   FileText,
-  MessageCircle,
+  MessageSquare,
   ShieldCheck,
   LogOut,
   Settings,
+  Search,
+  Users,
+  UserCog,
+  LayoutDashboard,
 } from 'lucide-react'
 import { Avatar, Logo } from '@/components/ui'
 import { useAuth } from '@/features/auth/AuthContext'
-
-import { Search } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { getMyProfile } from '@/features/settings/api'
-
-const landlordNavItems = [
-  { to: '/dashboard', label: 'Dashboard', Icon: Home },
-  { to: '/properties', label: 'Properties', Icon: Building2 },
-  { to: '/applications', label: 'Applications', Icon: FileText },
-  { to: '/messages', label: 'Messages', Icon: MessageCircle },
-  { to: '/verification', label: 'Verification', Icon: ShieldCheck },
-  { to: '/settings', label: 'Settings', Icon: Settings },
-]
-
-const tenantNavItems = [
-  { to: '/dashboard', label: 'Dashboard', Icon: Home },
-  { to: '/search', label: 'Search', Icon: Search },
-  { to: '/applications', label: 'My Applications', Icon: FileText },
-  { to: '/messages', label: 'Messages', Icon: MessageCircle },
-  { to: '/verification', label: 'Verification', Icon: ShieldCheck },
-  { to: '/settings', label: 'Settings', Icon: Settings },
-]
-
+import { getUnreadCount } from '@/features/messages/api'
+import { queryKeys } from '@/lib/queryKeys'
 export function Sidebar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -43,6 +28,16 @@ export function Sidebar() {
     queryFn: getMyProfile,
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchIntervalInBackground: true,
+  })
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: queryKeys.conversations.unreadCount,
+    queryFn: getUnreadCount,
+    enabled: !!user,
+    staleTime: 0,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: true,
   })
 
   const firstName = profile?.firstName || user?.firstName || ''
@@ -64,7 +59,34 @@ export function Sidebar() {
     navigate('/login', { replace: true })
   }
 
-  const navItems = user?.role === 'Tenant' ? tenantNavItems : landlordNavItems
+  const isLandlord = user?.role?.toLowerCase() === 'landlord'
+  const isTenant = user?.role?.toLowerCase() === 'tenant'
+  const isAdmin = user?.role?.toLowerCase() === 'admin' || user?.role?.toLowerCase() === 'superadmin'
+  const isSuperAdmin = user?.role?.toLowerCase() === 'superadmin'
+
+  const navItems = []
+
+  if (isLandlord || isTenant) {
+    navItems.push({ to: '/dashboard', label: 'Dashboard', Icon: Home })
+    if (isTenant) navItems.push({ to: '/search', label: 'Search', Icon: Search })
+    if (isLandlord) navItems.push({ to: '/properties', label: 'Properties', Icon: Building })
+    navItems.push({ to: '/applications', label: 'Applications', Icon: FileText })
+    navItems.push({ to: '/messages', label: 'Messages', Icon: MessageSquare })
+    navItems.push({ to: '/verification', label: 'Verification', Icon: ShieldCheck })
+  }
+
+  if (isAdmin) {
+    navItems.push({ to: '/admin/dashboard', label: 'Overview', Icon: LayoutDashboard })
+    navItems.push({ to: '/admin/verifications', label: 'Verifications', Icon: ShieldCheck })
+    navItems.push({ to: '/admin/properties', label: 'Properties', Icon: Building })
+  }
+
+  if (isSuperAdmin) {
+    navItems.push({ to: '/admin/users', label: 'User Directory', Icon: Users })
+    navItems.push({ to: '/admin/staff', label: 'Staff Management', Icon: UserCog })
+  }
+
+  navItems.push({ to: isAdmin ? '/admin/settings' : '/settings', label: 'Settings', Icon: Settings })
 
   return (
     <aside
@@ -94,15 +116,22 @@ export function Sidebar() {
           >
             {({ isActive }) => (
               <>
-                <Icon
-                  size={18}
-                  className={clsx(
-                    'shrink-0 transition-colors',
-                    isActive
-                      ? 'text-harbour-accent'
-                      : 'text-white/60 group-hover:text-white/90',
+                <span className="relative shrink-0">
+                  <Icon
+                    size={18}
+                    className={clsx(
+                      'transition-colors',
+                      isActive
+                        ? 'text-harbour-accent'
+                        : 'text-white/60 group-hover:text-white/90',
+                    )}
+                  />
+                  {label === 'Messages' && unreadCount > 0 && (
+                    <span className="absolute -top-1.5 -right-2 flex min-w-[18px] items-center justify-center rounded-full bg-harbour-accent px-1 h-[18px] text-[10px] font-semibold text-white leading-none">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
                   )}
-                />
+                </span>
                 {label}
               </>
             )}

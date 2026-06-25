@@ -12,8 +12,8 @@ public static class SeedData
     {
         try
         {
-            var adminExists = await context.Users.AnyAsync(u => u.Role == UserRole.Admin);
-            if (!adminExists)
+            var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Email == (configuration["Seed:SuperAdmin:Email"] ?? "dubem@dev.com"));
+            if (adminUser == null)
             {
                 logger.LogInformation("Seeding superadmin account...");
 
@@ -27,7 +27,7 @@ public static class SeedData
 
                 var passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
 
-                var adminUser = new User(email, phone, passwordHash, UserRole.Admin);
+                adminUser = new User(email, phone, passwordHash, UserRole.SuperAdmin);
 
                 // Admin accounts shouldn't be blocked by normal KYC flow
                 // State machine requires Unverified -> Pending -> Verified
@@ -51,7 +51,17 @@ public static class SeedData
             }
             else
             {
-                logger.LogInformation("Superadmin account already exists, skipping seed.");
+                if (adminUser.Role != UserRole.SuperAdmin)
+                {
+                    logger.LogInformation("Upgrading existing admin account to Superadmin...");
+                    adminUser.Role = UserRole.SuperAdmin;
+                    await context.SaveChangesAsync();
+                    logger.LogInformation("Upgraded to Superadmin successfully.");
+                }
+                else 
+                {
+                    logger.LogInformation("Superadmin account already exists, skipping seed.");
+                }
             }
         }
         catch (Exception ex)

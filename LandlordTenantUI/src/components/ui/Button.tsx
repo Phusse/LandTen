@@ -20,6 +20,7 @@ const base = [
   'transition-colors duration-150',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-harbour-accent focus-visible:ring-offset-2',
   'disabled:opacity-50 disabled:cursor-not-allowed',
+  'hover:scale-[1.02] active:scale-[0.98] hover:shadow-md transition-all duration-200',
 ].join(' ')
 
 const variants: Record<Variant, string> = {

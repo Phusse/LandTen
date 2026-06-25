@@ -5,6 +5,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
   className?: string
+  rightElement?: React.ReactNode
 }
 
 const fieldBase = [
@@ -16,7 +17,7 @@ const fieldBase = [
 ].join(' ')
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, className, id: externalId, ...props }, ref) => {
+  ({ label, error, className, rightElement, id: externalId, ...props }, ref) => {
     const autoId = useId()
     const id = externalId ?? autoId
 
@@ -30,16 +31,24 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {label}
           </label>
         )}
-        <input
-          ref={ref}
-          id={id}
-          className={clsx(
-            fieldBase,
-            error && 'border-red-400 focus:ring-red-300/30 focus:border-red-400',
-            className,
+        <div className="relative">
+          <input
+            ref={ref}
+            id={id}
+            className={clsx(
+              fieldBase,
+              error && 'border-red-400 focus:ring-red-300/30 focus:border-red-400',
+              rightElement && 'pr-10', // add padding to right if element exists
+              className,
+            )}
+            {...props}
+          />
+          {rightElement && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+              {rightElement}
+            </div>
           )}
-          {...props}
-        />
+        </div>
         {error && (
           <p className="text-xs text-red-500" role="alert">
             {error}

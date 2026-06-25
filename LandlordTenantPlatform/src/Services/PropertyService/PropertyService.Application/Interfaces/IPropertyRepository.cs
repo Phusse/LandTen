@@ -1,4 +1,5 @@
 using PropertyService.Domain.Entities;
+using PropertyService.Domain.Enums;
 
 namespace PropertyService.Application.Interfaces;
 
@@ -16,7 +17,7 @@ public interface IPropertyRepository
     void Delete(Property property);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<PropertyDocument>> GetPendingPropertyDocumentsAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<PropertyDocument>> GetPropertyDocumentsAsync(PropertyDocumentStatus? status = null, CancellationToken cancellationToken = default);
     Task<PropertyDocument?> GetPropertyDocumentByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task AddPropertyDocumentAsync(PropertyDocument document, CancellationToken cancellationToken = default);
 }

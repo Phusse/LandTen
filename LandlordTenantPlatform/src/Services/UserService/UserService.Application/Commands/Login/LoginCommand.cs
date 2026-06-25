@@ -32,12 +32,14 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
 {
     private readonly IUserRepository _userRepository;
     private readonly ISessionRepository _sessionRepository;
+    private readonly IAdminActionLogRepository _adminActionLogRepository;
     private readonly IConfiguration _configuration;
 
-    public LoginCommandHandler(IUserRepository userRepository, ISessionRepository sessionRepository, IConfiguration configuration)
+    public LoginCommandHandler(IUserRepository userRepository, ISessionRepository sessionRepository, IAdminActionLogRepository adminActionLogRepository, IConfiguration configuration)
     {
         _userRepository = userRepository;
         _sessionRepository = sessionRepository;
+        _adminActionLogRepository = adminActionLogRepository;
         _configuration = configuration;
     }
 
@@ -52,7 +54,11 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
 
         if (user.Status == UserStatus.Suspended)
         {
-            throw new ForbiddenException("Account is suspended.");
+            var reason = await _adminActionLogRepository.GetLastSuspensionReasonAsync(user.Id, cancellationToken);
+            var detail = string.IsNullOrWhiteSpace(reason)
+                ? "Your account has been suspended. Please contact support if you believe this is an error."
+                : $"Your account has been suspended. Reason: {reason}. If you believe this is a mistake, please contact support.";
+            throw new ForbiddenException(detail);
         }
 
         var accessToken = GenerateJwtToken(user);

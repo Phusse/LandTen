@@ -1,4 +1,5 @@
 using UserService.Domain.Entities;
+using UserService.Domain.Enums;
 
 namespace UserService.Application.Interfaces;
 
@@ -12,7 +13,7 @@ public interface IUserRepository
     Task AddAsync(User user, CancellationToken cancellationToken = default);
     void Update(User user);
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-    Task<IEnumerable<KycDocument>> GetPendingKycDocumentsAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<KycDocument>> GetKycDocumentsAsync(KycDocumentStatus? status = null, CancellationToken cancellationToken = default);
     Task<KycDocument?> GetKycDocumentByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task AddKycDocumentAsync(KycDocument document, CancellationToken cancellationToken = default);
 }

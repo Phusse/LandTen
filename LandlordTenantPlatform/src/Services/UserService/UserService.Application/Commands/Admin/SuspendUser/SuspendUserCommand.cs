@@ -28,6 +28,9 @@ public class SuspendUserCommandHandler : IRequestHandler<SuspendUserCommand, Res
         if (user == null)
             throw new NotFoundException($"User {request.TargetUserId} not found.");
 
+        if (user.Role == UserRole.SuperAdmin)
+            throw new ForbiddenException("SuperAdmin accounts cannot be suspended.");
+
         user.Status = UserStatus.Suspended;
         _userRepository.Update(user);
 

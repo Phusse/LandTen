@@ -4,5 +4,6 @@ public enum UserRole
 {
     Tenant,
     Landlord,
-    Admin
+    Admin,
+    SuperAdmin
 }

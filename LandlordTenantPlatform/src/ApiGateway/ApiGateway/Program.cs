@@ -64,6 +64,9 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+// Add HttpClient for document proxy
+builder.Services.AddHttpClient("document-proxy");
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -78,6 +81,42 @@ app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Document proxy — fetches any URL server-side and streams it to the admin browser.
+// Requires authentication so it can't be used as an open proxy.
+app.MapGet("/proxy/document", async (
+    string url,
+    IHttpClientFactory httpClientFactory,
+    Microsoft.AspNetCore.Http.HttpContext ctx,
+    CancellationToken ct) =>
+{
+    if (!ctx.User.Identity?.IsAuthenticated ?? true)
+        return Results.Unauthorized();
+
+    if (string.IsNullOrWhiteSpace(url) || !Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        return Results.BadRequest("Invalid url");
+
+    // Only allow Cloudinary domains
+    if (!uri.Host.EndsWith("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        return Results.BadRequest("URL not allowed");
+
+    try
+    {
+        var client = httpClientFactory.CreateClient("document-proxy");
+        var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
+
+        if (!response.IsSuccessStatusCode)
+            return Results.StatusCode((int)response.StatusCode);
+
+        var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+        var stream = await response.Content.ReadAsStreamAsync(ct);
+        return Results.Stream(stream, contentType);
+    }
+    catch
+    {
+        return Results.StatusCode(502);
+    }
+}).RequireAuthorization();
 
 // Map YARP
 app.MapReverseProxy();

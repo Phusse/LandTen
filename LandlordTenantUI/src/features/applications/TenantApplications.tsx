@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { clsx } from 'clsx'
-import { Calendar, RefreshCw } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { Calendar, RefreshCw, MessageCircle } from 'lucide-react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { Avatar, Badge, Button, Card, ApplicationRowSkeleton } from '@/components/ui'
 import { getApplications } from './api'
 import { queryKeys } from '@/lib/queryKeys'
+import { startOrGetConversation } from '@/features/messages/api'
 
 // Match the AppStatus type from the API response
 type AppStatus = 'Pending' | 'Accepted' | 'Rejected' | 'Expired' | 'Withdrawn'
@@ -22,6 +24,7 @@ const statusVariant: Record<AppStatus, 'neutral' | 'success' | 'warning'> = {
 
 export function TenantApplications() {
   const [activeTab, setActiveTab] = useState<FilterTab>('All')
+  const navigate = useNavigate()
 
   const {
     data: applications,
@@ -32,6 +35,27 @@ export function TenantApplications() {
     queryKey: queryKeys.applications.list(),
     queryFn: getApplications,
   })
+
+  // Track which application's "Message landlord" button is loading
+  const [messagingAppId, setMessagingAppId] = useState<string | null>(null)
+
+  const { mutate: startConversation } = useMutation({
+    mutationFn: (args: { landlordId: string; propertyId: string }) =>
+      startOrGetConversation(args.landlordId, args.propertyId),
+    onSuccess: (data) => {
+      setMessagingAppId(null)
+      navigate(`/messages?conversationId=${data.conversationId}`)
+    },
+    onError: () => {
+      setMessagingAppId(null)
+    },
+  })
+
+  function handleMessageLandlord(app: { id: string; propertyId: string; landlordId?: string }) {
+    if (!app.landlordId) return
+    setMessagingAppId(app.id)
+    startConversation({ landlordId: app.landlordId, propertyId: app.propertyId })
+  }
 
   const allApplications = applications ?? []
   
@@ -99,24 +123,38 @@ export function TenantApplications() {
           filtered.map((app) => (
             <Card key={app.id} className="flex flex-col gap-0">
               {/* Row — avatar + info + status + actions */}
-              <div className="flex items-center gap-4 px-5 py-4">
-                <Avatar initials={app.tenantInitials} size="md" className="shrink-0" />
+              <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4">
+                <div className="flex min-w-[200px] flex-1 items-center gap-4">
+                  <Avatar initials={app.tenantInitials} size="md" className="shrink-0" />
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-harbour-text">Property Application</p>
-                    <Badge
-                      label={app.status}
-                      variant={statusVariant[app.status]}
-                    />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium text-harbour-text">Property Application</p>
+                      <Badge
+                        label={app.status}
+                        variant={statusVariant[app.status]}
+                      />
+                    </div>
+                    <p className="mt-0.5 truncate text-sm text-harbour-text-secondary">
+                      {app.meta}
+                    </p>
                   </div>
-                  <p className="mt-0.5 truncate text-sm text-harbour-text-secondary">
-                    {app.meta}
-                  </p>
                 </div>
 
-                {/* Actions — Tenant can only view, no accept/reject */}
-                {/* We could add "Withdraw" here if backend supported it */}
+                {/* Actions — Message landlord */}
+                {app.landlordId && (
+                  <div className="flex shrink-0 gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      icon={<MessageCircle size={14} />}
+                      isLoading={messagingAppId === app.id}
+                      onClick={() => handleMessageLandlord(app)}
+                    >
+                      Message landlord
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Inspection date footer — if present */}

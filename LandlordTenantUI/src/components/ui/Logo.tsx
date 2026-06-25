@@ -1,68 +1,55 @@
-import { Anchor } from 'lucide-react'
+// VGC Logo — renders inline SVG shield mark + "VGC" wordmark in Zilla Slab.
+// Fully supports light and dark variants with no external image files required.
 
 export interface LogoProps {
-  markSize?: string
+  markSize?: string       // Tailwind size classes, e.g. "h-8 w-8"
   showWordmark?: boolean
-  wordmarkClassName?: string
-  variant?: 'light' | 'dark'
-  fallbackBgClass?: string
-  fallbackIconClass?: string
-  fallbackIconSize?: number
-  gap?: string
+  variant?: 'light' | 'dark'  // light = dark text on light bg, dark = white on dark bg
+  gap?: string            // Tailwind gap class between mark and wordmark
 }
 
 export function Logo({
-  markSize = 'h-10 w-10',
+  markSize = 'h-9 w-9',
   showWordmark = true,
-  wordmarkClassName = 'h-6 object-contain',
   variant = 'light',
-  fallbackBgClass = 'bg-harbour-accent',
-  fallbackIconClass = 'text-harbour-primary',
-  fallbackIconSize = 20,
-  gap = 'gap-3',
+  gap = 'gap-2.5',
 }: LogoProps) {
-  const fallbackTextColor = variant === 'dark' ? 'text-white' : 'text-harbour-primary'
-  
-  // If we are on a dark background and the wordmark is dark text, 
-  // we apply brightness-0 invert to make it white so it remains legible.
-  const finalWordmarkClass = variant === 'dark' 
-    ? `${wordmarkClassName} brightness-0 invert`
-    : wordmarkClassName
+  const wordColor = variant === 'dark' ? 'text-white' : 'text-harbour-primary'
+  const shieldFill = variant === 'dark' ? '#FFFFFF' : '#1F3B40'
+  const accentFill = variant === 'dark' ? '#1F3B40' : '#E0922F'
 
   return (
     <div className={`flex items-center ${gap}`}>
-      {/* Logo Mark */}
-      <div className={`relative flex ${markSize} shrink-0 items-center justify-center rounded-lg overflow-hidden`}>
-        <img 
-          src="/logo.png" 
-          alt="VGC Logo" 
-          className="h-full w-full object-contain" 
-          onError={(e) => { 
-            e.currentTarget.style.display = 'none'; 
-            e.currentTarget.nextElementSibling?.classList.remove('hidden') 
-          }} 
+      {/* Shield Mark SVG */}
+      <svg
+        className={`shrink-0 ${markSize}`}
+        viewBox="0 0 40 44"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        {/* Shield body */}
+        <path
+          d="M20 2L4 8.5V21C4 30.5 11 39.5 20 42C29 39.5 36 30.5 36 21V8.5L20 2Z"
+          fill={shieldFill}
         />
-        <div className={`hidden absolute inset-0 ${fallbackBgClass} flex items-center justify-center`}>
-          <Anchor size={fallbackIconSize} className={fallbackIconClass} strokeWidth={2.5} />
-        </div>
-      </div>
+        {/* Accent checkmark */}
+        <path
+          d="M13 22l5 5 9-10"
+          stroke={accentFill}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
 
       {/* Wordmark */}
       {showWordmark && (
-        <>
-          <img 
-            src="/wordmark.png" 
-            alt="VGC" 
-            className={finalWordmarkClass} 
-            onError={(e) => { 
-              e.currentTarget.style.display = 'none'; 
-              e.currentTarget.nextElementSibling?.classList.remove('hidden') 
-            }} 
-          />
-          <span className={`hidden font-display text-xl font-semibold tracking-tight ${fallbackTextColor}`}>
-            VGC
-          </span>
-        </>
+        <span
+          className={`font-display text-xl font-semibold tracking-tight leading-none ${wordColor}`}
+        >
+          VGC
+        </span>
       )}
     </div>
   )

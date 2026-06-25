@@ -17,6 +17,8 @@ export ConnectionStrings__UserServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Tru
 export ConnectionStrings__PropertyServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Trust Server Certificate=true;Pooling=false;"
 export ConnectionStrings__ApplicationServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Trust Server Certificate=true;Pooling=false;"
 export ConnectionStrings__PaymentServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Trust Server Certificate=true;Pooling=false;"
+export ConnectionStrings__MessagingServiceDb="${SUPABASE_DB_BASE}Ssl Mode=Require;Trust Server Certificate=true;Pooling=false;"
+export ConnectionStrings__DefaultConnection="${SUPABASE_DB_BASE}Search Path=payment_schema;"
 
 cd /Users/Dubem/Documents/LandTen/LandlordTenantPlatform/src/Services
 
@@ -32,6 +34,9 @@ dotnet ef database update --context ApplicationServiceDbContext --project Applic
 
 echo "Payment Service..."
 dotnet ef database update --context PaymentServiceDbContext --project PaymentService/PaymentService.Infrastructure --startup-project PaymentService/PaymentService.Api
+
+echo "Messaging Service..."
+dotnet ef database update --context MessagingDbContext --project MessagingService/MessagingService.Infrastructure --startup-project MessagingService/MessagingService.Api
 
 echo "All migrations applied!"
 
